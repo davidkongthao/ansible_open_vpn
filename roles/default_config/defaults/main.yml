@@ -1,0 +1,17 @@
+---
+ansible_become: true
+
+# Default APT packages
+default_apt_packages:
+  - apparmor
+  - bash-completion
+  - vim
+  - curl
+  - htop
+  - lsof
+  - nano
+  - rsync
+  - screen
+  - mlocate
+  - net-tools
+  - ntp

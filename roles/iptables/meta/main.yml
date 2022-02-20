@@ -1,0 +1,5 @@
+galaxy_info:
+  author: davidkongthao@gmail.com
+  description: Configures Linux servers with the default iptables.
+
+dependencies: []

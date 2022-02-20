@@ -1,0 +1,80 @@
+---
+- include_vars: vars/main.yml
+
+- name: Install iptables.
+  apt:
+    name: "{{ iptables_packages }}"
+    state: present
+
+- name: Create iptables snippet directory.
+  file:
+    path: /etc/iptables.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create starting config for the filter table.
+  template:
+    src: prefix.inc.j2
+    dest: /etc/iptables.d/filter_prefix.inc
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart firewall
+
+- name: Create ending config for the filter table.
+  template:
+    src: suffix.inc.j2
+    dest: /etc/iptables.d/filter_suffix.inc
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart firewall
+
+- name: Create empty iptables rules.
+  file:
+    path: "{{ iptables_rules_path }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Create Bash script for building the iptables rules file.
+  template:
+    src: rebuild-iptables.sh.j2
+    dest: /usr/sbin/rebuild-iptables.sh
+    owner: root
+    group: root
+    mode: 0755
+  notify: Restart firewall
+
+- name: Create a firewall rule for SSH.
+  template:
+    src: ssh.conf.j2
+    dest: /etc/iptables.d/default-ssh.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart firewall
+  when: allow_ssh
+
+- name: Create a drop-in directory for the firewall service.
+  template:
+    src: rebuild-iptables.conf.j2
+    dest: "/etc/systemd/system/{{ iptables_daemon }}.service.d/rebuild-iptables.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart firewall
+  register: iptables_service_dropin
+
+- name: Force systemd to reload config
+  systemd:
+    daemon_reload: true
+  when: iptables_service_dropin.changed
+
+- name: Configure firewall service
+  service:
+    name: "{{ iptables_daemon }}"
+    state: started
+    enabled: true

@@ -1,0 +1,4 @@
+# Allow SSH
+{% for network in allowed_ssh_subnets %}
+-A INPUT --match state --state NEW --source {{ network.subnet }} --protocol tcp --dport 22 --jump ACCEPT
+{% endfor %}

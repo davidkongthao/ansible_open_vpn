@@ -1,0 +1,9 @@
+---
+open_vpn_packages:
+  - ca-certificates
+  - wget
+  - net-tools
+  - gnupg
+  - certbot
+
+open_vpn_package: openvpn-as

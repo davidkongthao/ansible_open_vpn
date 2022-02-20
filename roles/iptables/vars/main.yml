@@ -1,0 +1,7 @@
+---
+iptables_daemon: netfilter-persistent
+iptables_restore_path: /sbin/iptables-restore
+iptables_packages:
+  - iptables
+  - iptables-persistent
+iptables_rules_path: /etc/iptables/rules.v4

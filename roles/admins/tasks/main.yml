@@ -1,0 +1,27 @@
+---
+- name: Disable password authentication for the root account.
+  user:
+    name: root
+    password: "!"
+  when: disable_root_password
+
+- name: Update the password for the default admin account.
+  user:
+    name: "{{ ansible_default_user }}"
+    password: "{{ ansible_default_password }}"
+    group: admin
+
+- name: Set the public SSH Key for the default admin account.
+  authorized_key:
+    user: "{{ ansible_default_user }}"
+    exclusive: true
+    key: "{{ ansible_default_public_key }}"
+
+- name: Configure sudo privileges for the superusers group. 
+  template:
+    src: sudoers.j2
+    dest: /etc/sudoers.d/superusers
+    owner: root
+    group: root
+    mode: 0440
+    validate: '/usr/sbin/visudo -cf %s'

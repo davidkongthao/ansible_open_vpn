@@ -1,0 +1,13 @@
+*filter
+:INPUT ACCEPT [0,0]
+:FORWARD ACCEPT [0,0]
+:OUTPUT ACCEPT [0,0]
+
+# Allow loopback traffic
+-A INPUT --in-interface lo --jump ACCEPT
+
+# Allow ICMP Traffic
+{% for network in allowed_icmp_subnets %}
+-A INPUT --protocol icmp --source {{ network.subnet }} --jump ACCEPT
+{% endfor %}
+

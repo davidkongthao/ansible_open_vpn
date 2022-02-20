@@ -1,0 +1,11 @@
+---
+# Use elevated permissions for all tasks.
+ansible_become: true
+
+# Disable root password by default
+disable_root_password: true
+
+# The username, password, and SSH key of the default user.
+ansible_default_user:
+ansible_default_password: 
+ansible_default_public_key: 

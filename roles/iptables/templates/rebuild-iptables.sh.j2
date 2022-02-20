@@ -1,0 +1,25 @@
+#!/bin/bash
+
+RULES_FILE={{ iptables_rules_path }}
+
+# Clear the existing firewall rules in the firewall
+echo -n '' >> $RULES_FILE
+
+# Add config for the NAT table if applicable
+if [ -f /etc/iptables.d/nat.inc ]; then
+    cat /etc/iptables.d/nat.inc >> $RULES_FILE
+fi
+
+# Add prefix config for the filter table
+cat /etc/iptables.d/filter_prefix.inc >> $RULES_FILE
+ 
+# Apply firewall rules from snippets in /etc/iptables.d
+for filename in /etc/iptables.d/*.conf; do
+    cat $filename >> $RULES_FILE
+done
+
+# Add suffix config for the suffix table
+cat /etc/iptables.d/filter_suffix.inc >> $RULES_FILE
+
+# Test the rules for config errors
+{{ iptables_restore_path }} --test $RULES_FILE

@@ -1,0 +1,6 @@
+# Block TCP Traffic
+-A INPUT --match limit --limit 4/min --protocol tcp --jump LOG --log-prefix "Denied TCP: " --log-level 7
+
+# Block traffic that doesn't match other rules
+-A INPUT --jump REJECT --reject-with icmp-host-prohibited
+COMMIT

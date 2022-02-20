@@ -1,0 +1,9 @@
+---
+# For single IPs use /32
+# example entry:
+# - subnet: "0.0.0.0/0"
+allowed_ssh_subnets:
+
+allowed_icmp_subnets:
+
+allow_ssh: true

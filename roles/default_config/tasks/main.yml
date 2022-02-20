@@ -1,0 +1,11 @@
+---
+- name: Set the hostname of the server.
+  hostname: 
+    name: "{{ inventory_hostname }}"
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install default APT packages.
+  apt:
+    name: "{{ default_apt_packages }}"
+    state: present
+  when: ansible_distribution == "Ubuntu"

@@ -1,0 +1,60 @@
+---
+- name: Install necessary OpenVPN packages.
+  apt:
+    name: "{{ open_vpn_packages }}"
+    state: present
+
+- name: Get the latest OpenVPN packages.
+  shell: | 
+    wget -qO - https://as-repository.openvpn.net/as-repo-public.gpg | apt-key add -
+
+    echo "deb http://as-repository.openvpn.net/as/debian focal main">/etc/apt/sources.list.d/openvpn-as-repo.list
+  register: downloaded_packages
+
+- name: Update latest cache
+  apt:
+    update_cache: yes
+
+- name: Check if OpenVPN package is installed.
+  command: "dpkg-query -l {{ open_vpn_package }}"
+  ignore_errors: yes
+  register: package_check
+
+- name: Install OpenVPN package if it is not installed.
+  apt:
+    name: "{{ open_vpn_package }}"
+    state: present
+  when: package_check is failed
+
+- name: Change the default password for the OpenVPN User
+  user:
+    name: "{{ open_vpn_user }}"
+    password: "{{ open_vpn_password }}"
+
+- name: Obtain LetsEncrypt certificate for OpenVPN Server.
+  shell: "certbot certonly --standalone --preferred-challenges http -d {{ open_vpn_url }} --email {{ letsencrypt_email }} --agree-tos"
+  register: letsencrypt_get
+  ignore_errors: yes
+
+- name: Install certificates in OpenVPN Database. 
+  shell: |
+    /usr/local/openvpn_as/scripts/sacli --key "cs.priv_key" --value_file "/etc/letsencrypt/live/{{ open_vpn_url }}/privkey.pem" ConfigPut
+    /usr/local/openvpn_as/scripts/sacli --key "cs.cert" --value_file "/etc/letsencrypt/live/{{ open_vpn_url }}/fullchain.pem" ConfigPut
+    /usr/local/openvpn_as/scripts/sacli start
+  when: letsencrypt_get is successful
+
+- name: Install script to renew LetsEncrypt cert.
+  template:
+    src: cert_renewal.sh.j2
+    dest: /usr/local/sbin/cert_renewal.sh
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install Cron job to renew LetsEncrypt cert.
+  copy:
+    src: renew_cert
+    dest: /etc/cron.d/renew_cert
+    owner: root
+    group: root
+    mode: 0644

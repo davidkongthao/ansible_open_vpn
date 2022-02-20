@@ -1,0 +1,6 @@
+#!/bin/bash
+certbot renew - standalone
+sleep 1m
+/usr/local/openvpn_as/scripts/sacli --key "cs.priv_key" --value_file "/etc/letsencrypt/live/{{ open_vpn_url }}/privkey.pem" ConfigPut
+/usr/local/openvpn_as/scripts/sacli --key "cs.cert" --value_file "/etc/letsencrypt/live/{{ open_vpn_url }}/fullchain.pem" ConfigPut
+/usr/local/openvpn_as/scripts/sacli start

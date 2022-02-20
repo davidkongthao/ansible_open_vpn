@@ -1,0 +1,8 @@
+---
+letsencrypt_email: 
+open_vpn_user:
+open_vpn_password: 
+open_vpn_url: 
+
+# If true, this configures an external database for OpenVPN.
+open_vpn_db: true
